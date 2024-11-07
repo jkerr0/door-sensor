@@ -24,6 +24,7 @@ class Door {
     bool open;
     bool initialized;
     bool changed;
+    unsigned long lastChangedAtMillis;
   public:
     void begin();
     Door(int pin);
@@ -37,6 +38,7 @@ Door::Door(int pin) {
   this->initialized = false;
   this->open = false;
   this->changed = false;
+  this->lastChangedAtMillis = 0;
 }
 
 void Door::begin() {
@@ -45,9 +47,15 @@ void Door::begin() {
 
 void Door::read() {
   bool doorPin = digitalRead(this->pin);
+  unsigned long currentMillis = millis();
+  // debounce
+  if (doorPin != this->open && currentMillis - this->lastChangedAtMillis < 50) {
+    return;
+  }
 
   if (this->initialized && doorPin != this->open) {
     this->changed = true;
+    this->lastChangedAtMillis=currentMillis;
   }
 
   this->open = doorPin;
