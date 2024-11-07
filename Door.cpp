@@ -1,4 +1,4 @@
-#include "door.h"
+#include "Door.h"
 #include "Arduino.h"
 
 Door::Door(int pin) {
@@ -23,7 +23,7 @@ void Door::read() {
 
   if (this->initialized && doorPin != this->open) {
     this->changed = true;
-    this->lastChangedAtMillis=currentMillis;
+    this->lastChangedAtMillis = currentMillis;
   }
 
   this->open = doorPin;
@@ -31,7 +31,6 @@ void Door::read() {
   if (!this->initialized) {
     this->initialized = true;
   }
-
 }
 
 bool Door::isOpen() {

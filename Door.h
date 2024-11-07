@@ -4,18 +4,18 @@
 #include "Arduino.h"
 
 class Door {
-  private:
-    int pin;
-    bool open;
-    bool initialized;
-    bool changed;
-    unsigned long lastChangedAtMillis;
-  public:
-    void begin();
-    Door(int pin);
-    void read();
-    bool isOpen();
-    bool didChange();
+private:
+  int pin;
+  bool open;
+  bool initialized;
+  bool changed;
+  unsigned long lastChangedAtMillis;
+public:
+  void begin();
+  Door(int pin);
+  void read();
+  bool isOpen();
+  bool didChange();
 };
 
 #endif
