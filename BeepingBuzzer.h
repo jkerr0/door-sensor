@@ -3,6 +3,9 @@
 
 #include "Arduino.h"
 
+/**
+ * Passive buzzer
+ **/
 class BeepingBuzzer {
 private:
   int pin;

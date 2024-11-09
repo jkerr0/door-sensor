@@ -6,7 +6,7 @@ BeepingBuzzer::BeepingBuzzer(int pin) {
   this->shouldBeep = false;
   this->interval = 2000;
   this->duration = 200;
-  this->frequency = 440;
+  this->frequency = 600;
   this->lastBeepStartMillis = 0;
   this->lastBeepEndMillis = 0;
 }
@@ -21,6 +21,7 @@ void BeepingBuzzer::stopBeeping() {
 
 void BeepingBuzzer::begin() {
   pinMode(this->pin, OUTPUT);
+  tone(this->pin, this->frequency, 1000);
 }
 
 void BeepingBuzzer::update() {
