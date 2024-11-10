@@ -21,7 +21,11 @@ void BeepingBuzzer::stopBeeping() {
 
 void BeepingBuzzer::begin() {
   pinMode(this->pin, OUTPUT);
-  tone(this->pin, this->frequency, 1000);
+
+}
+
+void BeepingBuzzer::beepOnce() {
+  tone(this->pin, this->frequency, this->duration);
 }
 
 void BeepingBuzzer::update() {

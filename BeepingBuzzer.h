@@ -19,6 +19,7 @@ public:
   BeepingBuzzer(int pin);
   void startBeeping();
   void stopBeeping();
+  void beepOnce();
   void begin();
   void update();
 };

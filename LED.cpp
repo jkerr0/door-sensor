@@ -13,11 +13,6 @@ LED::LED(int pin) {
 
 void LED::begin() {
   pinMode(this->pin, OUTPUT);
-  this->state = HIGH;
-  write();
-  delay(1000);
-  this->state = LOW;
-  write();
 }
 
 void LED::blink() {
