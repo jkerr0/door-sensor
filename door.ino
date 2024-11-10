@@ -17,13 +17,17 @@
 #include "BeepingBuzzer.h"
 #include "LED.h"
 
+#define D4 2
+#define D3 0
+#define D2 4
+
 // podłączamy kontaktron tak:
 // jedna nóżka na GND
 // dróga nóżka przez pullup 10K do 5V i to do pinu czytanego
-Door door = Door(12);
+Door door = Door(D2);
 // PWM, passive buzzer
-BeepingBuzzer buzzer = BeepingBuzzer(11);
-LED statusLed = LED(10);
+BeepingBuzzer buzzer = BeepingBuzzer(D3);
+LED statusLed = LED(D4);
 
 void setup() {
   // put your setup code here, to run once:
@@ -41,7 +45,7 @@ void loop() {
   if (door.didChange()) {
     Serial.print("Changed to ");
     if (door.isOpen()) {
-      buzzer.startBeeping();
+      buzzer.startBeeping(); 
       statusLed.blink();
       Serial.println("open");
     } else {
