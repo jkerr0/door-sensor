@@ -24,21 +24,18 @@ void LED::blink() {
   this->shouldBlink = true;
   this->blinkDuration = 100;
   this->blinkInterval = 100;
-  blinkReset();
 }
 
 void LED::blink(unsigned long duration) {
   this->shouldBlink = true;
   this->blinkDuration = duration;
   this->blinkInterval = duration;
-  blinkReset();
 }
 
 void LED::blink(unsigned long duration, unsigned long interval) {
   this->shouldBlink = true;
   this->blinkDuration = duration;
   this->blinkInterval = interval;
-  blinkReset();
 }
 
 void LED::blinkReset() {
@@ -76,7 +73,7 @@ void LED::update() {
   } else if (end <= currentMillis && currentMillis < end + this->blinkInterval && this->state == HIGH) {
     this->state = LOW;
     write();
-  } else if (currentMillis > end + this->blinkInterval) {
+  } else if (currentMillis < start || currentMillis > end + this->blinkInterval) {
     blinkReset();
   }
 }

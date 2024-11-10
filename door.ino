@@ -16,6 +16,7 @@
 #include "Door.h"
 #include "BeepingBuzzer.h"
 #include "LED.h"
+#include "Stopwatch.h"
 
 #define D4 2
 #define D3 0
@@ -28,6 +29,7 @@ Door door = Door(D2);
 // PWM, passive buzzer
 BeepingBuzzer buzzer = BeepingBuzzer(D3);
 LED statusLed = LED(D4);
+Stopwatch alarmStopwatch = Stopwatch();
 
 void setup() {
   // put your setup code here, to run once:
@@ -37,21 +39,32 @@ void setup() {
   Serial.begin(9600);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void update() {
   door.read();
   buzzer.update();
   statusLed.update();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  update();
+  const unsigned long ALARM_DELAY_MILLIS = 20 * 1000;
   if (door.didChange()) {
     Serial.print("Changed to ");
     if (door.isOpen()) {
-      buzzer.startBeeping(); 
-      statusLed.blink();
+      alarmStopwatch.start();
       Serial.println("open");
     } else {
       buzzer.stopBeeping();
       statusLed.off();
+      alarmStopwatch.stop();
+      alarmStopwatch.reset();
       Serial.println("closed");
     }
+  }
+
+  if (alarmStopwatch.getMillisValue() >= ALARM_DELAY_MILLIS) {
+    statusLed.blink();
+    buzzer.startBeeping();
   }
 }
