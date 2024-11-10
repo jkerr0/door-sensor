@@ -131,6 +131,7 @@ void loop() {
     Serial.print("Door status changed to: ");
     if (door.isOpen()) {
       alarmStopwatch.start();
+      statusLed.blink();
       Serial.println("open");
     } else {
       buzzer.stopBeeping();
@@ -142,7 +143,6 @@ void loop() {
   }
 
   if (alarmStopwatch.getMillisValue() >= ALARM_DELAY_MILLIS) {
-    statusLed.blink();
     buzzer.startBeeping();
   }
 
