@@ -20,6 +20,7 @@
 #include "LED.h"
 #include "Stopwatch.h"
 #include "NetworkManager.h"
+#include "HTTPServer.h"
 
 #define D4 2
 #define D3 0
@@ -34,7 +35,8 @@ BeepingBuzzer buzzer = BeepingBuzzer(D3);
 LED statusLed = LED(D4);
 Stopwatch doorOpenStopwatch = Stopwatch();
 NetworkManager networkManager = NetworkManager();
-WiFiServer server = WiFiServer(80);
+WiFiServer wifiServer = WiFiServer(80);
+HTTPServer httpServer = HTTPServer(&wifiServer, &door);
 
 void setup() {
   // put your setup code here, to run once:
@@ -67,8 +69,8 @@ void setup() {
   if (networkManager.isConnected()) {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
-    Serial.println("Starting server...");
-    server.begin();
+    Serial.println("Starting HTTP server...");
+    httpServer.begin();
   } else {
     Serial.println("Continuing offline");
   }
@@ -108,30 +110,5 @@ void loop() {
   if (!networkManager.isConnected()) {
     return;
   }
-  WiFiClient client = server.available();
-  if (!client) {
-    return;
-  }
-  int headerCounter = 0;
-  while (client.connected()) {
-    if (client.available()) {
-      String header = client.readStringUntil('\n');
-      if (headerCounter == 0) {
-        Serial.print("Received request at: ");
-        Serial.println(header);
-      }
-      if (header.equals("\r")) {
-        break;
-      }
-      headerCounter++;
-    }
-  }
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: application/json");
-  client.println("Connection: close");
-  client.println();
-  client.print("{ \"doorOpen\": ");
-  client.print(door.isOpen() ? "true" : "false");
-  client.println(" }");
-  client.flush();
+  httpServer.accept();
 }
