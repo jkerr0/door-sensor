@@ -19,7 +19,7 @@
 #include "BeepingBuzzer.h"
 #include "LED.h"
 #include "Stopwatch.h"
-#include "credentials.h"
+#include "NetworkManager.h"
 
 #define D4 2
 #define D3 0
@@ -32,41 +32,9 @@ Door door = Door(D2);
 // PWM, passive buzzer
 BeepingBuzzer buzzer = BeepingBuzzer(D3);
 LED statusLed = LED(D4);
-Stopwatch alarmStopwatch = Stopwatch();
+Stopwatch doorOpenStopwatch = Stopwatch();
+NetworkManager networkManager = NetworkManager();
 WiFiServer server = WiFiServer(80);
-
-void printWifiStatus() {
-  const char* msg;
-  switch (WiFi.status()) {
-    case WL_CONNECTED:
-      msg = "Connected";
-      break;
-    case WL_NO_SHIELD:
-      msg = "No WiFi shield";
-      break;
-    case WL_IDLE_STATUS:
-      msg = "Idle";
-      break;
-    case WL_CONNECT_FAILED:
-      msg = "Connection failed";
-      break;
-    case WL_NO_SSID_AVAIL:
-      msg = "No SSID available";
-      break;
-    case WL_SCAN_COMPLETED:
-      msg = "Network scan completed";
-      break;
-    case WL_DISCONNECTED:
-      msg = "Disconnected";
-      break;
-    case WL_CONNECTION_LOST:
-      msg = "Connection lost";
-      break;
-  }
-
-  Serial.print("WiFi status: ");
-  Serial.println(msg);
-}
 
 void setup() {
   // put your setup code here, to run once:
@@ -77,8 +45,8 @@ void setup() {
   }
 
   Serial.print("Connecting to WiFi, SSID: ");
-  Serial.println(WIFI_SSID);
-  int wifiStatus = WiFi.begin(WIFI_SSID, WIFI_PASS);
+  networkManager.begin();
+  Serial.println(WiFi.SSID());
 
   Serial.println("Initializing door...");
   door.begin();
@@ -93,19 +61,10 @@ void setup() {
   delay(1000);
   statusLed.off();
 
-  Serial.println("Awaiting WiFi connection...");
-  wifiStatus = WiFi.status();
-  printWifiStatus();
-  while (wifiStatus == WL_DISCONNECTED) {
-    delay(500);
-    int newStatus = WiFi.status();
-    if (wifiStatus != newStatus) {
-      printWifiStatus();
-    }
-    wifiStatus = newStatus;
-  }
+  Serial.println("Waiting WiFi connection...");
+  networkManager.waitForConnection();
 
-  if (WiFi.status() == WL_CONNECTED) {
+  if (networkManager.isConnected()) {
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
     Serial.println("Starting server...");
@@ -130,23 +89,23 @@ void loop() {
   if (door.didChange()) {
     Serial.print("Door status changed to: ");
     if (door.isOpen()) {
-      alarmStopwatch.start();
+      doorOpenStopwatch.start();
       statusLed.blink();
       Serial.println("open");
     } else {
       buzzer.stopBeeping();
       statusLed.off();
-      alarmStopwatch.stop();
-      alarmStopwatch.reset();
+      doorOpenStopwatch.stop();
+      doorOpenStopwatch.reset();
       Serial.println("closed");
     }
   }
 
-  if (alarmStopwatch.getMillisValue() >= ALARM_DELAY_MILLIS) {
+  if (doorOpenStopwatch.getMillisValue() >= ALARM_DELAY_MILLIS) {
     buzzer.startBeeping();
   }
 
-  if (WiFi.status() != WL_CONNECTED) {
+  if (!networkManager.isConnected()) {
     return;
   }
   WiFiClient client = server.available();
